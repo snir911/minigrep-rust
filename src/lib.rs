@@ -9,13 +9,19 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments"); // why it doesn't work without a return?
-        }
-
-        let query = args[1].clone(); // avoid clone
-        let filename = args[2].clone();
+    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
+        args.next();
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a filename string"),
+        };
+        //let query = args.next().unwrap_or_else(|| {return String::from("Didn't get a query string");}); // can i use something like this?
+        //let query = args.next().unwrap_or_else(|| {return Err("Didn't get a query string");});
+        //let filename = args.next().unwrap_or_else(|| {return String::from("Didn't get a filename string");});
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
 
         Ok(Config { query, filename, case_sensitive }) // why i can't retun args*].clone dirctly?
